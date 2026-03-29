@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NXN Notifications — Dokumentáció</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+<style>
+/* ── Variables ─────────────────────────────────────────────── */
+:root {
+  --bg:           #0a0a0c;
+  --bg2:          #0e0e10;
+  --bg3:          #131315;
+  --bg4:          #19191c;
+  --bg5:          #1f1f22;
+  --border:       #2a2a2e;
+  --border2:      #3a3a3f;
+  --text:         #f0edf3;
+  --text2:        #9b98a0;
+  --text3:        #5a5760;
+  --red:          #e80043;
+  --red2:         #ff747f;
+  --red3:         #ff8c93;
+  --green:        #22c55e;
+  --yellow:       #f59e0b;
+  --blue:         #3b82f6;
+  --purple:       #a78bfa;
+
+  --font-display: 'Syne', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  --radius:       4px;
+  --radius2:      8px;
+}
+
+/* ── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
+  font-size: 1rem;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+/* ── Layout ────────────────────────────────────────────────── */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Sidebar ───────────────────────────────────────────────── */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-logo {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo .brand {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text3);
+  display: block;
+  margin-bottom: 4px;
+}
+.sidebar-logo .name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  display: block;
+  letter-spacing: -0.02em;
+}
+.sidebar-logo .version {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--red);
+  background: rgba(232,0,67,0.1);
+  border: 1px solid rgba(232,0,67,0.2);
+  padding: 2px 8px;
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+}
+
+.sidebar-nav { padding: 16px 0; flex: 1; }
+
+.nav-group { margin-bottom: 24px; }
+.nav-group-title {
+  padding: 0 24px 8px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 24px;
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 12.5px;
+  font-family: var(--font-mono);
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+}
+.nav-item:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.03);
+}
+.nav-item.active {
+  color: var(--red2);
+  border-left-color: var(--red);
+  background: rgba(232,0,67,0.06);
+}
+.nav-item .nav-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+.nav-item.active .nav-dot { opacity: 1; }
+
+/* ── Main ──────────────────────────────────────────────────── */
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 60px 64px;
+  max-width: 900px;
+}
+
+/* ── Sections ──────────────────────────────────────────────── */
+.section {
+  margin-bottom: 80px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Hero ──────────────────────────────────────────────────── */
+.hero {
+  margin-bottom: 80px;
+  padding-bottom: 60px;
+  border-bottom: 1px solid var(--border);
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.hero.visible { opacity: 1; transform: translateY(0); }
+
+.hero-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 24px; height: 1px;
+  background: var(--red);
+}
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+.hero-title span { color: var(--red2); }
+.hero-desc {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text2);
+  max-width: 560px;
+  line-height: 1.8;
+  margin-bottom: 32px;
+}
+.hero-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  border-radius: var(--radius);
+  letter-spacing: 0.04em;
+}
+.badge-red   { background: rgba(232,0,67,0.12); color: var(--red2); border: 1px solid rgba(232,0,67,0.2); }
+.badge-green { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+.badge-blue  { background: rgba(59,130,246,0.1); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); }
+.badge-gray  { background: rgba(255,255,255,0.05); color: var(--text2); border: 1px solid var(--border); }
+
+/* ── Section heading ───────────────────────────────────────── */
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.section-heading h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.section-heading .anchor {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+}
+
+/* ── Prose ─────────────────────────────────────────────────── */
+.prose {
+  color: var(--text2);
+  font-size: 13.5px;
+  line-height: 1.85;
+  margin-bottom: 24px;
+}
+.prose strong { color: var(--text); font-weight: 600; }
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg4);
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--red3);
+}
+
+/* ── Code block ────────────────────────────────────────────── */
+.code-block {
+  position: relative;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--bg4);
+  border-bottom: 1px solid var(--border);
+}
+.code-block-lang {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text3);
+  background: none;
+  border: 1px solid transparent;
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.copy-btn:hover {
+  color: var(--text);
+  border-color: var(--border2);
+  background: var(--bg5);
+}
+.copy-btn.copied {
+  color: var(--green);
+  border-color: rgba(34,197,94,0.3);
+}
+.code-block pre {
+  padding: 20px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.code-block code {
+  font-family: inherit;
+  font-size: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+
+/* Syntax highlight */
+.kw  { color: #ff8c93; }
+.fn  { color: #c9a7ff; }
+.str { color: #98d982; }
+.num { color: #f9c74f; }
+.cm  { color: #5a5760; font-style: italic; }
+.key { color: #79d4f5; }
+.op  { color: var(--text2); }
+.pun { color: var(--text3); }
+
+/* ── Param table ───────────────────────────────────────────── */
+.param-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+  font-size: 12.5px;
+}
+.param-table th {
+  text-align: left;
+  padding: 8px 16px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text3);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+}
+.param-table td {
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.param-table tr:hover td { background: rgba(255,255,255,0.015); }
+.param-table td:first-child {
+  font-family: var(--font-mono);
+  color: var(--red3);
+  white-space: nowrap;
+}
+.param-table td:nth-child(2) {
+  font-family: var(--font-mono);
+  color: var(--blue);
+  white-space: nowrap;
+}
+.param-table td:nth-child(3) { color: var(--text2); }
+.param-table td:nth-child(4) {
+  color: var(--text3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.required-badge {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 5px;
+  background: rgba(232,0,67,0.1);
+  color: var(--red2);
+  border: 1px solid rgba(232,0,67,0.2);
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+.optional-badge {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 5px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text3);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* ── API card ──────────────────────────────────────────────── */
+.api-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  margin-bottom: 32px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.api-card:hover { border-color: var(--border2); }
+
+.api-card-header {
+  padding: 16px 20px;
+  background: var(--bg4);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.api-card-header:hover { background: var(--bg5); }
+
+.api-method {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 3px 8px;
+  border-radius: var(--radius);
+}
+.method-export {
+  background: rgba(167,139,250,0.12);
+  color: var(--purple);
+  border: 1px solid rgba(167,139,250,0.2);
+}
+.method-event {
+  background: rgba(59,130,246,0.1);
+  color: var(--blue);
+  border: 1px solid rgba(59,130,246,0.2);
+}
+.method-server {
+  background: rgba(245,158,11,0.1);
+  color: var(--yellow);
+  border: 1px solid rgba(245,158,11,0.2);
+}
+
+.api-card-title {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  color: var(--text);
+  flex: 1;
+}
+.api-card-title .fn-name { color: var(--red3); }
+.api-card-title .params  { color: var(--text2); }
+
+.api-chevron {
+  color: var(--text3);
+  transition: transform 0.2s;
+  font-size: 18px !important;
+}
+.api-card.open .api-chevron { transform: rotate(180deg); }
+
+.api-card-body {
+  display: none;
+  padding: 20px;
+}
+.api-card.open .api-card-body { display: block; }
+
+.api-desc {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.75;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Color palette ─────────────────────────────────────────── */
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.color-chip {
+  border-radius: var(--radius2);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.color-chip-swatch {
+  height: 44px;
+  width: 100%;
+}
+.color-chip-body {
+  padding: 8px 10px;
+  background: var(--bg3);
+}
+.color-chip-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  display: block;
+}
+.color-chip-hex {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+}
+
+/* ── Type showcase ─────────────────────────────────────────── */
+.type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+@media (max-width: 640px) { .type-grid { grid-template-columns: 1fr; } }
+
+.type-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.type-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--accent, var(--red));
+  border-radius: 1px 0 0 1px;
+}
+.type-card:hover {
+  border-color: var(--border2);
+  background: var(--bg4);
+  transform: translateY(-1px);
+}
+.type-card.selected {
+  border-color: var(--accent, var(--red));
+  background: rgba(232,0,67,0.04);
+}
+.type-card-name {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+.type-card-desc {
+  font-size: 11.5px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+/* ── Live preview panel ────────────────────────────────────── */
+.preview-panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+.preview-panel-header {
+  padding: 10px 16px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.preview-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.preview-label::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.preview-body {
+  padding: 28px;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 20px,
+    rgba(255,255,255,0.012) 20px,
+    rgba(255,255,255,0.012) 21px
+  );
+}
+
+/* Mock notification components */
+.mock-notif {
+  width: 280px;
+  backdrop-filter: blur(12px);
+  background: rgba(19,19,21,0.9);
+  border-left: 3px solid var(--red);
+  border-radius: 2px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  animation: mock-in 0.35s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes mock-in {
+  from { opacity: 0; transform: translateX(20px) scale(0.97); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* ── Info box ──────────────────────────────────────────────── */
+.info-box {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius2);
+  margin-bottom: 20px;
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+.info-box.tip    { background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); color: #86efac; }
+.info-box.warn   { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.15); color: #fcd34d; }
+.info-box.info   { background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.15); color: #93c5fd; }
+.info-box .info-icon { flex-shrink: 0; font-size: 16px !important; margin-top: 1px; }
+
+/* ── File tree ─────────────────────────────────────────────── */
+.file-tree {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 2;
+  margin-bottom: 24px;
+}
+.file-tree .dir  { color: var(--text2); }
+.file-tree .file { color: var(--text3); padding-left: 20px; }
+.file-tree .file.highlight { color: var(--red3); }
+.file-tree .file::before { content: '├─ '; color: var(--border2); }
+.file-tree .file.last::before { content: '└─ '; }
+.file-tree .comment { color: var(--text3); font-style: italic; opacity: 0.6; }
+
+/* ── Scrollspy highlight ───────────────────────────────────── */
+.scrollspy-active .nav-item { color: var(--text2); }
+
+/* ── Top bar ───────────────────────────────────────────────── */
+.topbar {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(10,10,12,0.9);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .topbar  { display: block; }
+  .main    { padding: 32px 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">NXN Notifications — Docs</div>
+
+<div class="layout">
+
+<!-- ── SIDEBAR ────────────────────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <span class="brand">Nexon Reloaded</span>
+    <span class="name">Notifications</span>
+    <span class="version">v1.0.0</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-title">Bevezető</div>
+      <a class="nav-item active" href="#intro">
+        <span class="nav-dot"></span>Áttekintés
+      </a>
+      <a class="nav-item" href="#install">
+        <span class="nav-dot"></span>Telepítés
+      </a>
+      <a class="nav-item" href="#structure">
+        <span class="nav-dot"></span>Fájlstruktúra
+      </a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">Konfiguráció</div>
+      <a class="nav-item" href="#config">
+        <span class="nav-dot"></span>config.lua
+      </a>
+      <a class="nav-item" href="#colors">
+        <span class="nav-dot"></span>Színek
+      </a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">API Referencia</div>
+      <a class="nav-item" href="#types">
+        <span class="nav-dot"></span>Típusok
+      </a>
+      <a class="nav-item" href="#client-exports">
+        <span class="nav-dot"></span>Client Exportok
+      </a>
+      <a class="nav-item" href="#server-exports">
+        <span class="nav-dot"></span>Server Exportok
+      </a>
+      <a class="nav-item" href="#events">
+        <span class="nav-dot"></span>Események
+      </a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">Példák</div>
+      <a class="nav-item" href="#examples">
+        <span class="nav-dot"></span>Kódpéldák
+      </a>
+      <a class="nav-item" href="#patterns">
+        <span class="nav-dot"></span>Minták
+      </a>
+    </div>
+  </nav>
+</aside>
+
+<!-- ── MAIN ───────────────────────────────────────────────── -->
+<main class="main">
+
+  <!-- HERO -->
+  <div class="hero" id="intro">
+    <div class="hero-eyebrow">Nexon Reloaded — FiveM Resource</div>
+    <h1 class="hero-title">NXN<br/><span>Notifications</span></h1>
+    <p class="hero-desc">
+      Moduláris, konfigurálható in-game értesítési rendszer FiveM RP szerverekhez.
+      Lua-alapú logika, NUI renderelés, teljes export API — más resource-okból azonnal használható.
+    </p>
+    <div class="hero-badges">
+      <span class="badge badge-red"><span class="material-symbols-outlined">gamepad</span>FiveM</span>
+      <span class="badge badge-green"><span class="material-symbols-outlined">check_circle</span>Lua 5.4</span>
+      <span class="badge badge-blue"><span class="material-symbols-outlined">integration_instructions</span>Export API</span>
+      <span class="badge badge-gray"><span class="material-symbols-outlined">event</span>Event-alapú</span>
+      <span class="badge badge-gray"><span class="material-symbols-outlined">palette</span>5 típus</span>
+    </div>
+  </div>
+
+  <!-- INSTALL -->
+  <section class="section" id="install">
+    <div class="section-heading">
+      <h2>Telepítés</h2>
+      <span class="anchor">#install</span>
+    </div>
+    <p class="prose">
+      Másold az <strong>nxn-notifications</strong> mappát a szerver <code>resources</code> könyvtárába,
+      majd add hozzá a <code>server.cfg</code>-hez.
+    </p>
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-lang">server.cfg</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <span class="material-symbols-outlined">content_copy</span>copy
+        </button>
+      </div>
+      <pre><code><span class="cm"># Más resource-ok ELŐTT töltsd be</span>
+<span class="kw">ensure</span> <span class="str">nxn-notifications</span></code></pre>
+    </div>
+    <div class="info-box tip">
+      <span class="material-symbols-outlined info-icon">lightbulb</span>
+      <span>Az <strong>nxn-notifications</strong>-t minden más resource elé érdemes betölteni, hogy az exportok elérhetők legyenek induláskor.</span>
+    </div>
+  </section>
+
+  <!-- STRUCTURE -->
+  <section class="section" id="structure">
+    <div class="section-heading">
+      <h2>Fájlstruktúra</h2>
+      <span class="anchor">#structure</span>
+    </div>
+    <div class="file-tree">
+      <div class="dir">nxn-notifications/</div>
+      <div class="file highlight">fxmanifest.lua <span class="comment">— resource manifest</span></div>
+      <div class="file highlight">config.lua <span class="comment">— minden beállítás itt</span></div>
+      <div class="file">client.lua <span class="comment">— queue, timer, exportok</span></div>
+      <div class="file">server.lua <span class="comment">— szerver oldali exportok</span></div>
+      <div class="dir" style="padding-left:20px">html/</div>
+      <div class="file" style="padding-left:40px">index.html <span class="comment">— NUI frame</span></div>
+      <div class="file" style="padding-left:40px">notifications.css <span class="comment">— stílus + animációk</span></div>
+      <div class="file last" style="padding-left:40px">notifications.js <span class="comment">— NUI renderelés</span></div>
+    </div>
+    <div class="info-box info">
+      <span class="material-symbols-outlined info-icon">info</span>
+      <span>Csak a <strong>config.lua</strong> fájlt kell módosítani. A többi fájlt ne szerkeszd, hacsak nem szeretnéd bővíteni a rendszert.</span>
+    </div>
+  </section>
+
+  <!-- CONFIG -->
+  <section class="section" id="config">
+    <div class="section-heading">
+      <h2>Konfiguráció</h2>
+      <span class="anchor">#config</span>
+    </div>
+    <p class="prose">A <strong>config.lua</strong> tartalmaz minden testreszabható értéket. Az alábbi táblázat az összes opciót leírja.</p>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-lang">config.lua — teljes referencia</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <span class="material-symbols-outlined">content_copy</span>copy
+        </button>
+      </div>
+      <pre><code><span class="kw">Config</span><span class="pun">.</span><span class="key">Stack</span> <span class="op">=</span> <span class="pun">{</span>
+    <span class="key">maxVisible</span> <span class="op">=</span> <span class="num">5</span><span class="pun">,</span>      <span class="cm">-- Egyszerre látható max notifikáció</span>
+    <span class="key">maxQueue</span>   <span class="op">=</span> <span class="num">20</span><span class="pun">,</span>     <span class="cm">-- Queue mérete</span>
+    <span class="key">direction</span>  <span class="op">=</span> <span class="str">"down"</span>  <span class="cm">-- "down" | "up"</span>
+<span class="pun">}</span>
+
+<span class="kw">Config</span><span class="pun">.</span><span class="key">Position</span> <span class="op">=</span> <span class="pun">{</span>
+    <span class="key">stack</span>   <span class="op">=</span> <span class="str">"top-right"</span><span class="pun">,</span>    <span class="cm">-- "top-right"|"top-left"|"bottom-right"|"bottom-left"</span>
+    <span class="key">prompt</span>  <span class="op">=</span> <span class="str">"bottom-center"</span><span class="pun">,</span> <span class="cm">-- "bottom-center"|"bottom-left"|"bottom-right"</span>
+    <span class="key">offsetX</span> <span class="op">=</span> <span class="num">32</span><span class="pun">,</span>
+    <span class="key">offsetY</span> <span class="op">=</span> <span class="num">96</span>
+<span class="pun">}</span>
+
+<span class="kw">Config</span><span class="pun">.</span><span class="key">Timing</span> <span class="op">=</span> <span class="pun">{</span>
+    <span class="key">defaultDuration</span> <span class="op">=</span> <span class="num">5000</span><span class="pun">,</span>  <span class="cm">-- ms (0 = végtelen)</span>
+    <span class="key">animateIn</span>       <span class="op">=</span> <span class="num">350</span><span class="pun">,</span>
+    <span class="key">animateOut</span>      <span class="op">=</span> <span class="num">300</span>
+<span class="pun">}</span>
+
+<span class="kw">Config</span><span class="pun">.</span><span class="key">Animation</span> <span class="op">=</span> <span class="pun">{</span>
+    <span class="key">enterStyle</span> <span class="op">=</span> <span class="str">"slide-fade"</span><span class="pun">,</span>  <span class="cm">-- "slide-fade"|"slide"|"fade"|"scale"</span>
+    <span class="key">exitStyle</span>  <span class="op">=</span> <span class="str">"slide-fade"</span><span class="pun">,</span>
+    <span class="key">errorShake</span> <span class="op">=</span> <span class="kw">true</span>
+<span class="pun">}</span></code></pre>
+    </div>
+  </section>
+
+  <!-- COLORS -->
+  <section class="section" id="colors">
+    <div class="section-heading">
+      <h2>Színek</h2>
+      <span class="anchor">#colors</span>
+    </div>
+    <p class="prose">
+      A <code>color</code> paraméterben megadhatod az előre definiált kulcsszavak egyikét,
+      vagy bármilyen hex színkódot (<code>"#ff0000"</code>).
+    </p>
+    <div class="color-grid">
+      <div class="color-chip">
+        <div class="color-chip-swatch" style="background:#e80043"></div>
+        <div class="color-chip-body"><span class="color-chip-name">primary</span><span class="color-chip-hex">#e80043</span></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-chip-swatch" style="background:#d53d18"></div>
+        <div class="color-chip-body"><span class="color-chip-name">error</span><span class="color-chip-hex">#d53d18</span></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-chip-swatch" style="background:#22c55e"></div>
+        <div class="color-chip-body"><span class="color-chip-name">success</span><span class="color-chip-hex">#22c55e</span></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-chip-swatch" style="background:#f59e0b"></div>
+        <div class="color-chip-body"><span class="color-chip-name">warning</span><span class="color-chip-hex">#f59e0b</span></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-chip-swatch" style="background:#3b82f6"></div>
+        <div class="color-chip-body"><span class="color-chip-name">info</span><span class="color-chip-hex">#3b82f6</span></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-chip-swatch" style="background:#ffffff"></div>
+        <div class="color-chip-body"><span class="color-chip-name">white</span><span class="color-chip-hex">#ffffff</span></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-chip-swatch" style="background:#767577"></div>
+        <div class="color-chip-body"><span class="color-chip-name">muted</span><span class="color-chip-hex">#767577</span></div>
+      </div>
+    </div>
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-lang">Lua — color használat</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <span class="material-symbols-outlined">content_copy</span>copy
+        </button>
+      </div>
+      <pre><code><span class="cm">-- Kulcsszó</span>
+<span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">ShowSimple</span><span class="pun">({</span> <span class="key">color</span> <span class="op">=</span> <span class="str">"success"</span> <span class="pun">})</span>
+
+<span class="cm">-- Hex</span>
+<span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">ShowSimple</span><span class="pun">({</span> <span class="key">color</span> <span class="op">=</span> <span class="str">"#00aaff"</span> <span class="pun">})</span></code></pre>
+    </div>
+  </section>
+
+  <!-- TYPES -->
+  <section class="section" id="types">
+    <div class="section-heading">
+      <h2>Értesítés típusok</h2>
+      <span class="anchor">#types</span>
+    </div>
+    <p class="prose">Az 5 elérhető típus — kattints bármelyikre az előnézet megtekintéséhez.</p>
+
+    <div class="type-grid">
+      <div class="type-card selected" style="--accent:#e80043" onclick="selectType('simple', this)">
+        <div class="type-card-name">Simple</div>
+        <div class="type-card-desc">Ikon + kategória + cím. Gyors visszajelzésekhez.</div>
+      </div>
+      <div class="type-card" style="--accent:#d53d18" onclick="selectType('status', this)">
+        <div class="type-card-name">Status</div>
+        <div class="type-card-desc">Progress bar + érték. Bio-statisztikákhoz, töltésekhez.</div>
+      </div>
+      <div class="type-card" style="--accent:#ffffff" onclick="selectType('interaction', this)">
+        <div class="type-card-name">Interaction</div>
+        <div class="type-card-desc">Játékos-interakció. Név, ID, üzenet, folyamat.</div>
+      </div>
+      <div class="type-card" style="--accent:#e80043" onclick="selectType('discovery', this)">
+        <div class="type-card-name">Discovery</div>
+        <div class="type-card-desc">Helyszín felfedezés. Kép + cím + meta infók.</div>
+      </div>
+      <div class="type-card" style="--accent:#e80043;grid-column:1/-1" onclick="selectType('prompt', this)">
+        <div class="type-card-name">Prompt</div>
+        <div class="type-card-desc">Interakció prompt a képernyő alján. Billentyű + szöveg.</div>
+      </div>
+    </div>
+
+    <!-- Live preview -->
+    <div class="preview-panel">
+      <div class="preview-panel-header">
+        <span class="preview-label">Live Preview</span>
+        <span style="font-size:11px;color:var(--text3);font-family:var(--font-mono)" id="preview-type-label">simple</span>
+      </div>
+      <div class="preview-body" id="preview-body">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- CLIENT EXPORTS -->
+  <section class="section" id="client-exports">
+    <div class="section-heading">
+      <h2>Client Exportok</h2>
+      <span class="anchor">#client-exports</span>
+    </div>
+    <p class="prose">Kliens oldalról (<code>client.lua</code>-ból) hívható exportok.</p>
+
+    <!-- ShowSimple -->
+    <div class="api-card open">
+      <div class="api-card-header" onclick="toggleCard(this)">
+        <span class="api-method method-export">EXPORT</span>
+        <span class="api-card-title">
+          <span class="fn-name">ShowSimple</span><span class="params">( options )</span>
+          <span style="color:var(--text3);font-size:11px;margin-left:8px">→ string id</span>
+        </span>
+        <span class="material-symbols-outlined api-chevron">expand_more</span>
+      </div>
+      <div class="api-card-body">
+        <div class="api-desc">Egyszerű szöveges értesítő ikon + kategória + cím kombinációval. Visszaadja a generált ID-t.</div>
+        <table class="param-table">
+          <tr><th>Paraméter</th><th>Típus</th><th>Leírás</th><th>Default</th></tr>
+          <tr><td>title<span class="required-badge">kötelező</span></td><td>string</td><td>Fő szöveg (nagybetűsítve jelenik meg)</td><td>—</td></tr>
+          <tr><td>icon<span class="optional-badge">opcionális</span></td><td>string</td><td>Material Symbol ikon neve</td><td>"notifications"</td></tr>
+          <tr><td>category<span class="optional-badge">opcionális</span></td><td>string</td><td>Kis fejléc szöveg</td><td>""</td></tr>
+          <tr><td>color<span class="optional-badge">opcionális</span></td><td>string</td><td>Szín kulcsszó vagy hex</td><td>"primary"</td></tr>
+          <tr><td>duration<span class="optional-badge">opcionális</span></td><td>number</td><td>Megjelenési idő ms-ban (0 = végtelen)</td><td>4000</td></tr>
+          <tr><td>id<span class="optional-badge">opcionális</span></td><td>string</td><td>Egyedi ID (auto-generált ha nincs megadva)</td><td>auto</td></tr>
+          <tr><td>shake<span class="optional-badge">opcionális</span></td><td>boolean</td><td>Shake animáció megjelenéskor</td><td>false</td></tr>
+        </table>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">Lua</span>
+            <button class="copy-btn" onclick="copyCode(this)"><span class="material-symbols-outlined">content_copy</span>copy</button>
+          </div>
+          <pre><code><span class="kw">local</span> <span class="key">id</span> <span class="op">=</span> <span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">ShowSimple</span><span class="pun">({</span>
+    <span class="key">title</span>    <span class="op">=</span> <span class="str">"Jármű lezárva"</span><span class="pun">,</span>
+    <span class="key">icon</span>     <span class="op">=</span> <span class="str">"lock"</span><span class="pun">,</span>
+    <span class="key">category</span> <span class="op">=</span> <span class="str">"Vehicle System"</span><span class="pun">,</span>
+    <span class="key">color</span>    <span class="op">=</span> <span class="str">"primary"</span><span class="pun">,</span>
+    <span class="key">duration</span> <span class="op">=</span> <span class="num">4000</span><span class="pun">,</span>
+<span class="pun">})</span></code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ShowStatus -->
+    <div class="api-card">
+      <div class="api-card-header" onclick="toggleCard(this)">
+        <span class="api-method method-export">EXPORT</span>
+        <span class="api-card-title">
+          <span class="fn-name">ShowStatus</span><span class="params">( options )</span>
+          <span style="color:var(--text3);font-size:11px;margin-left:8px">→ string id</span>
+        </span>
+        <span class="material-symbols-outlined api-chevron">expand_more</span>
+      </div>
+      <div class="api-card-body">
+        <div class="api-desc">Állapot-jelző értesítő animált progress bar-ral. Ideális hunger, thirst, health stb. megjelenítéséhez.</div>
+        <table class="param-table">
+          <tr><th>Paraméter</th><th>Típus</th><th>Leírás</th><th>Default</th></tr>
+          <tr><td>title<span class="required-badge">kötelező</span></td><td>string</td><td>Fő szöveg</td><td>—</td></tr>
+          <tr><td>value<span class="required-badge">kötelező</span></td><td>number</td><td>Progress érték (0–100)</td><td>—</td></tr>
+          <tr><td>icon<span class="optional-badge">opcionális</span></td><td>string</td><td>Material Symbol ikon</td><td>"monitor_heart"</td></tr>
+          <tr><td>category<span class="optional-badge">opcionális</span></td><td>string</td><td>Fejléc szöveg</td><td>"Bio-Stats"</td></tr>
+          <tr><td>subtext<span class="optional-badge">opcionális</span></td><td>string</td><td>Kis kiegészítő szöveg a bar alatt</td><td>""</td></tr>
+          <tr><td>color<span class="optional-badge">opcionális</span></td><td>string</td><td>Accent szín</td><td>"error"</td></tr>
+          <tr><td>duration<span class="optional-badge">opcionális</span></td><td>number</td><td>Megjelenési idő ms-ban</td><td>5000</td></tr>
+        </table>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">Lua</span>
+            <button class="copy-btn" onclick="copyCode(this)"><span class="material-symbols-outlined">content_copy</span>copy</button>
+          </div>
+          <pre><code><span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">ShowStatus</span><span class="pun">({</span>
+    <span class="key">title</span>    <span class="op">=</span> <span class="str">"Hunger: 25%"</span><span class="pun">,</span>
+    <span class="key">icon</span>     <span class="op">=</span> <span class="str">"fastfood"</span><span class="pun">,</span>
+    <span class="key">category</span> <span class="op">=</span> <span class="str">"Bio-Stats"</span><span class="pun">,</span>
+    <span class="key">value</span>    <span class="op">=</span> <span class="num">25</span><span class="pun">,</span>
+    <span class="key">subtext</span>  <span class="op">=</span> <span class="str">"Immediate Nutrients Required"</span><span class="pun">,</span>
+    <span class="key">color</span>    <span class="op">=</span> <span class="str">"error"</span><span class="pun">,</span>
+<span class="pun">})</span></code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ShowInteraction -->
+    <div class="api-card">
+      <div class="api-card-header" onclick="toggleCard(this)">
+        <span class="api-method method-export">EXPORT</span>
+        <span class="api-card-title">
+          <span class="fn-name">ShowInteraction</span><span class="params">( options )</span>
+          <span style="color:var(--text3);font-size:11px;margin-left:8px">→ string id</span>
+        </span>
+        <span class="material-symbols-outlined api-chevron">expand_more</span>
+      </div>
+      <div class="api-card-body">
+        <div class="api-desc">Játékos-interakció értesítő. Általában <code>duration = 0</code>-val használandó (végtelen), és manuálisan kell <code>Dismiss()</code>-szel zárni. Az <code>Update()</code>-tel frissíthető a progress.</div>
+        <table class="param-table">
+          <tr><th>Paraméter</th><th>Típus</th><th>Leírás</th><th>Default</th></tr>
+          <tr><td>name<span class="required-badge">kötelező</span></td><td>string</td><td>Játékos neve</td><td>—</td></tr>
+          <tr><td>message<span class="required-badge">kötelező</span></td><td>string</td><td>Interakció szöveg (dőlttel jelenik meg)</td><td>—</td></tr>
+          <tr><td>playerId<span class="optional-badge">opcionális</span></td><td>number</td><td>Server ID megjelenítése</td><td>nil</td></tr>
+          <tr><td>progress<span class="optional-badge">opcionális</span></td><td>number</td><td>Progress bar értéke (0–100)</td><td>0</td></tr>
+          <tr><td>icon<span class="optional-badge">opcionális</span></td><td>string</td><td>Avatar ikon</td><td>"person_search"</td></tr>
+          <tr><td>category<span class="optional-badge">opcionális</span></td><td>string</td><td>Fejléc</td><td>"Interaction"</td></tr>
+          <tr><td>color<span class="optional-badge">opcionális</span></td><td>string</td><td>Accent szín</td><td>"white"</td></tr>
+          <tr><td>duration<span class="optional-badge">opcionális</span></td><td>number</td><td>0 = végtelen</td><td>0</td></tr>
+        </table>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">Lua — progress frissítéssel</span>
+            <button class="copy-btn" onclick="copyCode(this)"><span class="material-symbols-outlined">content_copy</span>copy</button>
+          </div>
+          <pre><code><span class="kw">local</span> <span class="key">id</span> <span class="op">=</span> <span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">ShowInteraction</span><span class="pun">({</span>
+    <span class="key">name</span>     <span class="op">=</span> <span class="str">"John Doe"</span><span class="pun">,</span>
+    <span class="key">playerId</span> <span class="op">=</span> <span class="num">42</span><span class="pun">,</span>
+    <span class="key">message</span>  <span class="op">=</span> <span class="str">"Átkutatja a személyedet..."</span><span class="pun">,</span>
+    <span class="key">progress</span> <span class="op">=</span> <span class="num">0</span><span class="pun">,</span>
+<span class="pun">})</span>
+
+<span class="cm">-- Progress frissítése közben</span>
+<span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">Update</span><span class="pun">(</span><span class="key">id</span><span class="pun">, {</span> <span class="key">progress</span> <span class="op">=</span> <span class="num">60</span> <span class="pun">})</span>
+
+<span class="cm">-- Befejezés után elrejtés</span>
+<span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">Dismiss</span><span class="pun">(</span><span class="key">id</span><span class="pun">)</span></code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ShowDiscovery -->
+    <div class="api-card">
+      <div class="api-card-header" onclick="toggleCard(this)">
+        <span class="api-method method-export">EXPORT</span>
+        <span class="api-card-title">
+          <span class="fn-name">ShowDiscovery</span><span class="params">( options )</span>
+          <span style="color:var(--text3);font-size:11px;margin-left:8px">→ string id</span>
+        </span>
+        <span class="material-symbols-outlined api-chevron">expand_more</span>
+      </div>
+      <div class="api-card-body">
+        <div class="api-desc">Helyszín-felfedezési értesítő, opcionális háttérképpel és meta adatokkal (pl. szektor, járőrszint).</div>
+        <table class="param-table">
+          <tr><th>Paraméter</th><th>Típus</th><th>Leírás</th><th>Default</th></tr>
+          <tr><td>title<span class="required-badge">kötelező</span></td><td>string</td><td>Helyszín neve</td><td>—</td></tr>
+          <tr><td>tag<span class="optional-badge">opcionális</span></td><td>string</td><td>Kis fejléc (pl. "New Sector")</td><td>"New Sector"</td></tr>
+          <tr><td>imageUrl<span class="optional-badge">opcionális</span></td><td>string</td><td>Háttérkép URL (NUI-ban elérhető)</td><td>""</td></tr>
+          <tr><td>meta<span class="optional-badge">opcionális</span></td><td>table[]</td><td>Meta infók: <code>{{icon, text}, ...}</code></td><td>{}</td></tr>
+          <tr><td>color<span class="optional-badge">opcionális</span></td><td>string</td><td>Accent szín</td><td>"primary"</td></tr>
+          <tr><td>duration<span class="optional-badge">opcionális</span></td><td>number</td><td>Megjelenési idő ms-ban</td><td>6000</td></tr>
+        </table>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">Lua</span>
+            <button class="copy-btn" onclick="copyCode(this)"><span class="material-symbols-outlined">content_copy</span>copy</button>
+          </div>
+          <pre><code><span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">ShowDiscovery</span><span class="pun">({</span>
+    <span class="key">title</span>    <span class="op">=</span> <span class="str">"Mission Row"</span><span class="pun">,</span>
+    <span class="key">tag</span>      <span class="op">=</span> <span class="str">"New Sector"</span><span class="pun">,</span>
+    <span class="key">imageUrl</span> <span class="op">=</span> <span class="str">"https://..."</span><span class="pun">,</span>
+    <span class="key">meta</span>     <span class="op">=</span> <span class="pun">{</span>
+        <span class="pun">{</span> <span class="key">icon</span> <span class="op">=</span> <span class="str">"location_on"</span><span class="pun">,</span> <span class="key">text</span> <span class="op">=</span> <span class="str">"Sector 4-B"</span>  <span class="pun">},</span>
+        <span class="pun">{</span> <span class="key">icon</span> <span class="op">=</span> <span class="str">"shield"</span><span class="pun">,</span>      <span class="key">text</span> <span class="op">=</span> <span class="str">"High Patrol"</span> <span class="pun">},</span>
+    <span class="pun">},</span>
+    <span class="key">color</span>    <span class="op">=</span> <span class="str">"primary"</span><span class="pun">,</span>
+<span class="pun">})</span></code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ShowPrompt -->
+    <div class="api-card">
+      <div class="api-card-header" onclick="toggleCard(this)">
+        <span class="api-method method-export">EXPORT</span>
+        <span class="api-card-title">
+          <span class="fn-name">ShowPrompt</span><span class="params">( options )</span>
+          <span style="color:var(--text3);font-size:11px;margin-left:8px">→ string id</span>
+        </span>
+        <span class="material-symbols-outlined api-chevron">expand_more</span>
+      </div>
+      <div class="api-card-body">
+        <div class="api-desc">Interakció prompt a képernyő alján. A <code>highlight</code> paraméterrel kiemelhetd az objektum nevét. Érdemes <code>duration = 0</code>-val és manuális <code>Dismiss()</code>-szel kezelni.</div>
+        <table class="param-table">
+          <tr><th>Paraméter</th><th>Típus</th><th>Leírás</th><th>Default</th></tr>
+          <tr><td>text<span class="required-badge">kötelező</span></td><td>string</td><td>Prompt szöveg</td><td>—</td></tr>
+          <tr><td>key<span class="optional-badge">opcionális</span></td><td>string</td><td>Billentyű felirat</td><td>"E"</td></tr>
+          <tr><td>highlight<span class="optional-badge">opcionális</span></td><td>string</td><td>Kiemelt szöveg a végén</td><td>""</td></tr>
+          <tr><td>color<span class="optional-badge">opcionális</span></td><td>string</td><td>Billentyű gomb színe</td><td>"primary"</td></tr>
+          <tr><td>duration<span class="optional-badge">opcionális</span></td><td>number</td><td>0 = végtelen</td><td>0</td></tr>
+        </table>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">Lua</span>
+            <button class="copy-btn" onclick="copyCode(this)"><span class="material-symbols-outlined">content_copy</span>copy</button>
+          </div>
+          <pre><code><span class="kw">local</span> <span class="key">promptId</span> <span class="op">=</span> <span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">ShowPrompt</span><span class="pun">({</span>
+    <span class="key">key</span>       <span class="op">=</span> <span class="str">"E"</span><span class="pun">,</span>
+    <span class="key">text</span>      <span class="op">=</span> <span class="str">"Interact with"</span><span class="pun">,</span>
+    <span class="key">highlight</span> <span class="op">=</span> <span class="str">"ATM"</span><span class="pun">,</span>
+    <span class="key">color</span>     <span class="op">=</span> <span class="str">"primary"</span><span class="pun">,</span>
+<span class="pun">})</span>
+
+<span class="cm">-- Elrejtés ha elmegy a közelből</span>
+<span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">Dismiss</span><span class="pun">(</span><span class="key">promptId</span><span class="pun">)</span></code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dismiss / DismissAll / Update -->
+    <div class="api-card">
+      <div class="api-card-header" onclick="toggleCard(this)">
+        <span class="api-method method-export">EXPORT</span>
+        <span class="api-card-title">
+          <span class="fn-name">Dismiss</span><span class="params">( id )</span> &nbsp;·&nbsp;
+          <span class="fn-name">DismissAll</span><span class="params">()</span> &nbsp;·&nbsp;
+          <span class="fn-name">Update</span><span class="params">( id, options )</span>
+        </span>
+        <span class="material-symbols-outlined api-chevron">expand_more</span>
+      </div>
+      <div class="api-card-body">
+        <div class="api-desc">Vezérlő exportok: elrejtés ID alapján, összes elrejtése, vagy élő frissítés (cím, progress, szín, üzenet).</div>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">Lua</span>
+            <button class="copy-btn" onclick="copyCode(this)"><span class="material-symbols-outlined">content_copy</span>copy</button>
+          </div>
+          <pre><code><span class="cm">-- Egy elrejtése</span>
+<span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">Dismiss</span><span class="pun">(</span><span class="key">id</span><span class="pun">)</span>
+
+<span class="cm">-- Összes elrejtése</span>
+<span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">DismissAll</span><span class="pun">()</span>
+
+<span class="cm">-- Frissítés (csak a megadott mezők változnak)</span>
+<span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">Update</span><span class="pun">(</span><span class="key">id</span><span class="pun">, {</span>
+    <span class="key">title</span>    <span class="op">=</span> <span class="str">"Hunger: 10%"</span><span class="pun">,</span>
+    <span class="key">value</span>    <span class="op">=</span> <span class="num">10</span><span class="pun">,</span>
+    <span class="key">color</span>    <span class="op">=</span> <span class="str">"error"</span><span class="pun">,</span>
+    <span class="key">progress</span> <span class="op">=</span> <span class="num">75</span><span class="pun">,</span>    <span class="cm">-- interaction típusnál</span>
+    <span class="key">message</span>  <span class="op">=</span> <span class="str">"Kész..."</span><span class="pun">,</span> <span class="cm">-- interaction típusnál</span>
+<span class="pun">})</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVER EXPORTS -->
+  <section class="section" id="server-exports">
+    <div class="section-heading">
+      <h2>Server Exportok</h2>
+      <span class="anchor">#server-exports</span>
+    </div>
+    <p class="prose">Szerver oldalról (<code>server.lua</code>) hívható exportok — <code>source</code> a játékos szerver ID-ja.</p>
+
+    <div class="api-card open">
+      <div class="api-card-header" onclick="toggleCard(this)">
+        <span class="api-method method-server">SERVER</span>
+        <span class="api-card-title">Send* exportok + Broadcast*</span>
+        <span class="material-symbols-outlined api-chevron">expand_more</span>
+      </div>
+      <div class="api-card-body">
+        <div class="api-desc">Minden kliens export-hoz van egy <code>Send</code> prefixű szerver változat. A <code>Broadcast*</code> exportok <strong>összes</strong> online játékosnak küldenek.</div>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">Lua — server.lua</span>
+            <button class="copy-btn" onclick="copyCode(this)"><span class="material-symbols-outlined">content_copy</span>copy</button>
+          </div>
+          <pre><code><span class="cm">-- Egy játékosnak</span>
+<span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">SendSimple</span><span class="pun">(</span><span class="key">source</span><span class="pun">, {</span>
+    <span class="key">title</span> <span class="op">=</span> <span class="str">"Figyelmeztetés"</span><span class="pun">,</span>
+    <span class="key">icon</span>  <span class="op">=</span> <span class="str">"warning"</span><span class="pun">,</span>
+    <span class="key">color</span> <span class="op">=</span> <span class="str">"warning"</span><span class="pun">,</span>
+<span class="pun">})</span>
+
+<span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">SendStatus</span><span class="pun">(</span><span class="key">source</span><span class="pun">, {</span>
+    <span class="key">title</span>   <span class="op">=</span> <span class="str">"HP: 45%"</span><span class="pun">,</span>
+    <span class="key">value</span>   <span class="op">=</span> <span class="num">45</span><span class="pun">,</span>
+    <span class="key">icon</span>    <span class="op">=</span> <span class="str">"favorite"</span><span class="pun">,</span>
+    <span class="key">color</span>   <span class="op">=</span> <span class="str">"error"</span><span class="pun">,</span>
+<span class="pun">})</span>
+
+<span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">SendDismiss</span><span class="pun">(</span><span class="key">source</span><span class="pun">,</span> <span class="key">notifId</span><span class="pun">)</span>
+<span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">SendDismissAll</span><span class="pun">(</span><span class="key">source</span><span class="pun">)</span>
+
+<span class="cm">-- Összes játékosnak (broadcast)</span>
+<span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">BroadcastSimple</span><span class="pun">({</span>
+    <span class="key">title</span>    <span class="op">=</span> <span class="str">"Szerver újraindul 5 perc múlva"</span><span class="pun">,</span>
+    <span class="key">icon</span>     <span class="op">=</span> <span class="str">"schedule"</span><span class="pun">,</span>
+    <span class="key">color</span>    <span class="op">=</span> <span class="str">"warning"</span><span class="pun">,</span>
+    <span class="key">duration</span> <span class="op">=</span> <span class="num">10000</span><span class="pun">,</span>
+<span class="pun">})</span></code></pre>
+        </div>
+        <table class="param-table">
+          <tr><th>Szerver export</th><th>Leírás</th></tr>
+          <tr><td>SendSimple(src, opts)</td><td>Simple küldése egy játékosnak</td></tr>
+          <tr><td>SendStatus(src, opts)</td><td>Status küldése egy játékosnak</td></tr>
+          <tr><td>SendInteraction(src, opts)</td><td>Interaction küldése</td></tr>
+          <tr><td>SendDiscovery(src, opts)</td><td>Discovery küldése</td></tr>
+          <tr><td>SendPrompt(src, opts)</td><td>Prompt küldése</td></tr>
+          <tr><td>SendDismiss(src, id)</td><td>Elrejtés egy játékosnál</td></tr>
+          <tr><td>SendDismissAll(src)</td><td>Összes elrejtése egy játékosnál</td></tr>
+          <tr><td>SendUpdate(src, id, opts)</td><td>Frissítés egy játékosnál</td></tr>
+          <tr><td>BroadcastSimple(opts)</td><td>Simple küldése mindenkinek</td></tr>
+          <tr><td>BroadcastStatus(opts)</td><td>Status küldése mindenkinek</td></tr>
+          <tr><td>BroadcastDiscovery(opts)</td><td>Discovery küldése mindenkinek</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVENTS -->
+  <section class="section" id="events">
+    <div class="section-heading">
+      <h2>Esemény-alapú hívás</h2>
+      <span class="anchor">#events</span>
+    </div>
+    <p class="prose">
+      Ha nem szeretnéd az export szintaxist, <code>TriggerEvent</code>-tel is hívhatod a rendszert.
+      Kliens oldalon belül működik.
+    </p>
+
+    <div class="api-card open">
+      <div class="api-card-header" onclick="toggleCard(this)">
+        <span class="api-method method-event">EVENT</span>
+        <span class="api-card-title">nxn:notify &nbsp;·&nbsp; nxn:dismiss &nbsp;·&nbsp; nxn:dismissAll &nbsp;·&nbsp; nxn:update</span>
+        <span class="material-symbols-outlined api-chevron">expand_more</span>
+      </div>
+      <div class="api-card-body">
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">Lua — client esemény hívás</span>
+            <button class="copy-btn" onclick="copyCode(this)"><span class="material-symbols-outlined">content_copy</span>copy</button>
+          </div>
+          <pre><code><span class="cm">-- Megjelenítés (type mező kötelező!)</span>
+<span class="fn">TriggerEvent</span><span class="pun">(</span><span class="str">'nxn:notify'</span><span class="pun">, {</span>
+    <span class="key">type</span>     <span class="op">=</span> <span class="str">"simple"</span><span class="pun">,</span>
+    <span class="key">title</span>    <span class="op">=</span> <span class="str">"Hello világ"</span><span class="pun">,</span>
+    <span class="key">icon</span>     <span class="op">=</span> <span class="str">"waving_hand"</span><span class="pun">,</span>
+    <span class="key">color</span>    <span class="op">=</span> <span class="str">"success"</span><span class="pun">,</span>
+<span class="pun">})</span>
+
+<span class="fn">TriggerEvent</span><span class="pun">(</span><span class="str">'nxn:notify'</span><span class="pun">, {</span>
+    <span class="key">type</span>  <span class="op">=</span> <span class="str">"status"</span><span class="pun">,</span>
+    <span class="key">title</span> <span class="op">=</span> <span class="str">"Thirst: 60%"</span><span class="pun">,</span>
+    <span class="key">value</span> <span class="op">=</span> <span class="num">60</span><span class="pun">,</span>
+    <span class="key">icon</span>  <span class="op">=</span> <span class="str">"water_drop"</span><span class="pun">,</span>
+<span class="pun">})</span>
+
+<span class="cm">-- Elrejtés</span>
+<span class="fn">TriggerEvent</span><span class="pun">(</span><span class="str">'nxn:dismiss'</span><span class="pun">,</span> <span class="key">id</span><span class="pun">)</span>
+<span class="fn">TriggerEvent</span><span class="pun">(</span><span class="str">'nxn:dismissAll'</span><span class="pun">)</span>
+
+<span class="cm">-- Frissítés</span>
+<span class="fn">TriggerEvent</span><span class="pun">(</span><span class="str">'nxn:update'</span><span class="pun">,</span> <span class="key">id</span><span class="pun">, {</span> <span class="key">value</span> <span class="op">=</span> <span class="num">30</span><span class="pun">,</span> <span class="key">title</span> <span class="op">=</span> <span class="str">"Thirst: 30%"</span> <span class="pun">})</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXAMPLES -->
+  <section class="section" id="examples">
+    <div class="section-heading">
+      <h2>Kódpéldák</h2>
+      <span class="anchor">#examples</span>
+    </div>
+
+    <p class="prose" style="margin-bottom:8px"><strong>Hunger/Thirst rendszer integráció</strong></p>
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-lang">Lua — hunger system</span>
+        <button class="copy-btn" onclick="copyCode(this)"><span class="material-symbols-outlined">content_copy</span>copy</button>
+      </div>
+      <pre><code><span class="kw">local</span> <span class="key">hungerNotifId</span> <span class="op">=</span> <span class="kw">nil</span>
+
+<span class="kw">local function</span> <span class="fn">UpdateHunger</span><span class="pun">(</span><span class="key">value</span><span class="pun">)</span>
+    <span class="kw">if</span> <span class="key">value</span> <span class="op">&lt;</span> <span class="num">30</span> <span class="kw">then</span>
+        <span class="kw">if</span> <span class="key">hungerNotifId</span> <span class="kw">then</span>
+            <span class="cm">-- Már látható, csak frissítjük</span>
+            <span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">Update</span><span class="pun">(</span><span class="key">hungerNotifId</span><span class="pun">, {</span>
+                <span class="key">title</span> <span class="op">=</span> <span class="str">"Hunger: "</span> <span class="op">..</span> <span class="key">value</span> <span class="op">..</span> <span class="str">"%"</span><span class="pun">,</span>
+                <span class="key">value</span> <span class="op">=</span> <span class="key">value</span><span class="pun">,</span>
+            <span class="pun">})</span>
+        <span class="kw">else</span>
+            <span class="cm">-- Első megjelenítés</span>
+            <span class="key">hungerNotifId</span> <span class="op">=</span> <span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">ShowStatus</span><span class="pun">({</span>
+                <span class="key">title</span>    <span class="op">=</span> <span class="str">"Hunger: "</span> <span class="op">..</span> <span class="key">value</span> <span class="op">..</span> <span class="str">"%"</span><span class="pun">,</span>
+                <span class="key">icon</span>     <span class="op">=</span> <span class="str">"fastfood"</span><span class="pun">,</span>
+                <span class="key">category</span> <span class="op">=</span> <span class="str">"Bio-Stats"</span><span class="pun">,</span>
+                <span class="key">value</span>    <span class="op">=</span> <span class="key">value</span><span class="pun">,</span>
+                <span class="key">subtext</span>  <span class="op">=</span> <span class="str">"Immediate Nutrients Required"</span><span class="pun">,</span>
+                <span class="key">color</span>    <span class="op">=</span> <span class="str">"error"</span><span class="pun">,</span>
+                <span class="key">duration</span> <span class="op">=</span> <span class="num">0</span><span class="pun">,</span>  <span class="cm">-- végtelen</span>
+            <span class="pun">})</span>
+        <span class="kw">end</span>
+    <span class="kw">elseif</span> <span class="key">hungerNotifId</span> <span class="kw">then</span>
+        <span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">Dismiss</span><span class="pun">(</span><span class="key">hungerNotifId</span><span class="pun">)</span>
+        <span class="key">hungerNotifId</span> <span class="op">=</span> <span class="kw">nil</span>
+    <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+    </div>
+
+    <p class="prose" style="margin-bottom:8px"><strong>Átmotozás / cuff interakció</strong></p>
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-lang">Lua — search interaction</span>
+        <button class="copy-btn" onclick="copyCode(this)"><span class="material-symbols-outlined">content_copy</span>copy</button>
+      </div>
+      <pre><code><span class="kw">local function</span> <span class="fn">StartSearch</span><span class="pun">(</span><span class="key">targetName</span><span class="pun">,</span> <span class="key">targetId</span><span class="pun">)</span>
+    <span class="kw">local</span> <span class="key">id</span> <span class="op">=</span> <span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">ShowInteraction</span><span class="pun">({</span>
+        <span class="key">name</span>     <span class="op">=</span> <span class="key">targetName</span><span class="pun">,</span>
+        <span class="key">playerId</span> <span class="op">=</span> <span class="key">targetId</span><span class="pun">,</span>
+        <span class="key">message</span>  <span class="op">=</span> <span class="str">"Átkutatja a személyedet..."</span><span class="pun">,</span>
+        <span class="key">progress</span> <span class="op">=</span> <span class="num">0</span><span class="pun">,</span>
+    <span class="pun">})</span>
+
+    <span class="kw">local</span> <span class="key">duration</span> <span class="op">=</span> <span class="num">5000</span>
+    <span class="kw">local</span> <span class="key">steps</span>    <span class="op">=</span> <span class="num">20</span>
+    <span class="kw">local</span> <span class="key">interval</span> <span class="op">=</span> <span class="key">duration</span> <span class="op">/</span> <span class="key">steps</span>
+
+    <span class="fn">CreateThread</span><span class="pun">(</span><span class="kw">function</span><span class="pun">()</span>
+        <span class="kw">for</span> <span class="key">i</span> <span class="op">=</span> <span class="num">1</span><span class="pun">,</span> <span class="key">steps</span> <span class="kw">do</span>
+            <span class="fn">Wait</span><span class="pun">(</span><span class="key">interval</span><span class="pun">)</span>
+            <span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">Update</span><span class="pun">(</span><span class="key">id</span><span class="pun">, {</span>
+                <span class="key">progress</span> <span class="op">=</span> <span class="pun">(</span><span class="key">i</span> <span class="op">/</span> <span class="key">steps</span><span class="pun">)</span> <span class="op">*</span> <span class="num">100</span>
+            <span class="pun">})</span>
+        <span class="kw">end</span>
+        <span class="fn">exports</span><span class="pun">[</span><span class="str">'nxn-notifications'</span><span class="pun">]:</span><span class="fn">Dismiss</span><span class="pun">(</span><span class="key">id</span><span class="pun">)</span>
+    <span class="pun">})</span>
+<span class="kw">end</span></code></pre>
+    </div>
+  </section>
+
+  <!-- PATTERNS -->
+  <section class="section" id="patterns">
+    <div class="section-heading">
+      <h2>Bevált minták</h2>
+      <span class="anchor">#patterns</span>
+    </div>
+
+    <div class="info-box tip">
+      <span class="material-symbols-outlined info-icon">check_circle</span>
+      <span><strong>Végtelen notifikáció kezelése:</strong> mindig tárold el a visszakapott ID-t, és hívj <code>Dismiss(id)</code>-t, ha már nem szükséges. Ne támaszkodj <code>DismissAll()</code>-ra, mert az más resource notifikációit is eltünteti.</span>
+    </div>
+    <div class="info-box warn">
+      <span class="material-symbols-outlined info-icon">warning</span>
+      <span><strong>Queue limit:</strong> ha sokat hívsz egymás után, a <code>maxQueue</code> limit felett az újabb notifikációk eldobódnak. Kritikus értesítéseknél adj egyedi <code>id</code>-t és használj <code>Update()</code>-t.</span>
+    </div>
+    <div class="info-box info">
+      <span class="material-symbols-outlined info-icon">info</span>
+      <span><strong>Prompt + zóna:</strong> <code>ShowPrompt</code>-ot <code>Enter zone</code> eseménynél jelenítsd meg, és <code>Exit zone</code>-nál hívj <code>Dismiss(promptId)</code>-t. A promptId-t globálisan tárold a scriptedben.</span>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<script>
+// ── Toggle API card ───────────────────────────────────────────
+function toggleCard(header) {
+  const card = header.closest('.api-card');
+  card.classList.toggle('open');
+}
+
+// ── Copy code ─────────────────────────────────────────────────
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = '<span class="material-symbols-outlined">check</span>copied';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<span class="material-symbols-outlined">content_copy</span>copy';
+    }, 2000);
+  });
+}
+
+// ── Type preview ──────────────────────────────────────────────
+const previews = {
+  simple: `
+    <div class="mock-notif" style="border-left-color:#e80043">
+      <div style="padding:1rem;display:flex;align-items:center;gap:1rem">
+        <div style="width:2.5rem;height:2.5rem;background:#262528;display:flex;align-items:center;justify-content:center;border-radius:2px;flex-shrink:0">
+          <span class="material-symbols-outlined" style="color:#e80043;font-variation-settings:'FILL' 1">lock</span>
+        </div>
+        <div>
+          <div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.2em;font-family:'JetBrains Mono',monospace">Vehicle System</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:-.02em;color:#fff">Locked Vehicle</div>
+        </div>
+      </div>
+    </div>`,
+  status: `
+    <div class="mock-notif" style="border-left-color:#d53d18">
+      <div style="padding:1rem">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:.5rem">
+          <div>
+            <div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.2em;font-family:'JetBrains Mono',monospace">Bio-Stats</div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;text-transform:uppercase;color:#fff">Hunger: 25%</div>
+          </div>
+          <span class="material-symbols-outlined" style="color:#d53d18;font-size:1.5rem;animation:blink 1.6s infinite">fastfood</span>
+        </div>
+        <div style="width:100%;height:4px;background:#262528;border-radius:2px">
+          <div style="width:25%;height:100%;background:#d53d18;border-radius:2px;transition:width .6s ease-in-out"></div>
+        </div>
+        <div style="margin-top:.4rem;font-size:9px;font-family:'JetBrains Mono',monospace;color:rgba(213,61,24,.8);text-transform:uppercase;letter-spacing:.1em">Immediate Nutrients Required</div>
+      </div>
+    </div>`,
+  interaction: `
+    <div class="mock-notif" style="border-left-color:#fff;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;right:0;width:4rem;height:4rem;background:rgba(255,255,255,.04);filter:blur(20px);border-radius:50%"></div>
+      <div style="padding:1rem;display:flex;flex-direction:column;gap:.75rem">
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <div style="width:2rem;height:2rem;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <span class="material-symbols-outlined" style="color:#fff;font-size:1rem">person_search</span>
+          </div>
+          <div>
+            <div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.2em;font-family:'JetBrains Mono',monospace">Interaction</div>
+            <div style="display:flex;align-items:baseline;gap:.25rem">
+              <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:.85rem;color:#fff">Citizen</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:#e80043">[ID: 42]</span>
+            </div>
+          </div>
+        </div>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:rgba(255,255,255,.75);font-style:italic">"Átkutatja a személyedet..."</p>
+        <div style="height:2px;background:rgba(255,255,255,.15)">
+          <div style="width:55%;height:100%;background:#fff"></div>
+        </div>
+      </div>
+    </div>`,
+  discovery: `
+    <div class="mock-notif" style="border-left-color:#e80043;overflow:hidden">
+      <div style="height:60px;position:relative;background:linear-gradient(135deg,#1a1a1f,#2a2a30)">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,#0e0e10,transparent)"></div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:11px;color:rgba(255,255,255,.2);font-family:'JetBrains Mono',monospace;letter-spacing:.15em">[ MAP ]</div>
+      </div>
+      <div style="padding:.75rem 1rem 1rem">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#e80043;text-transform:uppercase;letter-spacing:.3em;font-weight:700">New Sector</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:900;font-size:1.4rem;letter-spacing:-.04em;text-transform:uppercase;color:#fff;line-height:1;margin-top:-2px">Mission Row</div>
+        <div style="display:flex;gap:.75rem;margin-top:.4rem">
+          <div style="display:flex;align-items:center;gap:.2rem;font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase">
+            <span class="material-symbols-outlined" style="font-size:.7rem">location_on</span>Sector 4-B
+          </div>
+          <div style="display:flex;align-items:center;gap:.2rem;font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase">
+            <span class="material-symbols-outlined" style="font-size:.7rem">shield</span>High Patrol
+          </div>
+        </div>
+      </div>
+    </div>`,
+  prompt: `
+    <div style="display:inline-flex;align-items:center;gap:1rem;padding:.75rem 1.5rem;backdrop-filter:blur(12px);background:rgba(19,19,21,.9);border-top:1px solid rgba(255,255,255,.1);border-radius:2px;box-shadow:0 20px 40px rgba(0,0,0,.6);animation:mock-in .35s cubic-bezier(.22,1,.36,1) both">
+      <div style="width:2rem;height:2rem;background:linear-gradient(135deg,#e80043,#ff747f);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:900;font-size:.875rem;color:#fff;border-radius:2px;flex-shrink:0">E</div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.875rem;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.9)">Interact with <span style="color:#e80043;font-weight:700">ATM</span></span>
+    </div>`
+};
+
+function selectType(type, el) {
+  document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('preview-type-label').textContent = type;
+  const body = document.getElementById('preview-body');
+  body.innerHTML = previews[type] || '';
+}
+
+// Init preview
+selectType('simple', document.querySelector('.type-card.selected'));
+
+// ── Scrollspy ─────────────────────────────────────────────────
+const navItems = document.querySelectorAll('.nav-item');
+const sections = document.querySelectorAll('[id]');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navItems.forEach(n => n.classList.remove('active'));
+      const active = document.querySelector(`.nav-item[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+
+// ── Reveal on scroll ──────────────────────────────────────────
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.section, .hero').forEach(el => revealObserver.observe(el));
+</script>
+</body>
+</html>
